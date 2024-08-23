@@ -17,7 +17,7 @@
         모집 직무: <input type="text" name="job" maxlength="24"><br>
         봉급: <input type="number" name="money" maxlength="9"><br>
         지역: <input type="text" name="region" maxlength="10"><br>
-        회사 전화번호: <input type="number" name="phone" maxlength="11"><br>
+        회사 전화번호: <input type="text" name="phone" maxlength="15" placeholder="00-0000-0000 형식으로 작성"><br>
         <input type="submit" value="제출"><br>
     </form>
 </body>

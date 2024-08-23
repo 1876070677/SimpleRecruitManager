@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.regex.Pattern;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
@@ -42,26 +43,42 @@ public class RegisterServlet extends HttpServlet {
         try {
             String company = request.getParameter("company");
             String job = request.getParameter("job");
-            int money = Integer.parseInt(request.getParameter("money"));
+            String stringMoney = request.getParameter("money");
             String region = request.getParameter("region");
             String phone = request.getParameter("phone");
-
-            if (company.isBlank() || job.isBlank() || region.isBlank() || phone.isBlank() || money < 1) {
+            if (company == null || job == null || stringMoney == null || region == null || phone == null) {
+                request.setAttribute("err", "입력 정보가 부족합니다.");
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsp/register.jsp");
+                rd.forward(request, response);
+            }
+            else if (company.isBlank() || job.isBlank() || region.isBlank() || phone.isBlank() || stringMoney.isBlank()) {
                 request.setAttribute("err", "입력 정보가 부족합니다.");
                 RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsp/register.jsp");
                 rd.forward(request, response);
             } else {
-                // 유효성 검증 시 로직, DB 엑세스
-                conn = ds.getConnection();
-                ps = conn.prepareStatement(INSERT_RECRUIT);
-                ps.setString(1, company);
-                ps.setString(2, job);
-                ps.setInt(3, money);
-                ps.setString(4, region);
-                ps.setString(5, phone);
+                String pattern = "^\\d{2,3}-\\d{3,4}-\\d{4}$";
+                if (!Pattern.matches(pattern, phone)) {
+                    request.setAttribute("err", "전화번호 형식이 일치하지 않습니다.");
+                    RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsp/register.jsp");
+                    rd.forward(request, response);
+                }
+                else if (Integer.parseInt(stringMoney) < 1 ) {
+                    request.setAttribute("err", "봉급은 0원 이하가 될 수 없습니다.");
+                    RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/jsp/register.jsp");
+                    rd.forward(request, response);
+                } else {
+                    // 유효성 검증 시 로직, DB 엑세스
+                    conn = ds.getConnection();
+                    ps = conn.prepareStatement(INSERT_RECRUIT);
+                    ps.setString(1, company);
+                    ps.setString(2, job);
+                    ps.setInt(3, Integer.parseInt(stringMoney));
+                    ps.setString(4, region);
+                    ps.setString(5, phone);
 
-                ps.executeUpdate();
-                response.sendRedirect("/");
+                    ps.executeUpdate();
+                    response.sendRedirect("/");
+                }
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
