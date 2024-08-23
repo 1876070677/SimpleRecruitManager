@@ -39,4 +39,4 @@ build/
 .DS_Store
 
 ### DB Connection ###
-/web/META-INF/context.xml
+/src/main/webapp/META-INF/context.xml
